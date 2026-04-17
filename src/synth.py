@@ -28,7 +28,24 @@ def additive_synth(f0, amplitudes, sample_rate=16000, hop_size=64):
 
     # We have 250 frames but 16000 samples
     # Each frame needs to expand to cover hop_size (64) samples
-    # repeat_interleave repeats each frame value 64 times along dim=1
+    # repeat_interleave repeats each frame value 64 times along dim=1 -> [batch, f1,f1,...(64 times), f2,f2,...(64 times)]
     # (batch, n_frames, n_harmonics) -> (batch, n_samples, n_harmonics)
     f0_samples = f0_expanded.repeat_interleave(hop_size, dim=1)
     amplitudes_samples = amplitudes.repeat_interleave(hop_size, dim=1)
+
+    # Phase = integral of frequency over time
+    # Instead of sin(2π * f * t), we use cumsum to integrate
+    # This handles smoothly when f0 changes frame to frame
+    # f/sample_rate converts Hz to cycles-per-sample
+    # cumsum accumulates phase accross all sampples
+    phase = 2 * math.pi * torch.cumsum(f0_samples / sample_rate, dim=1)
+
+    # Generate sine wave for each harmonic, scaled by its own amplitude
+    # audio[batch, n_samples, n_harmonics] = A[batch,n_samples,n_harmonics] * sin(phase[batch,n_samples,n_harmonics])
+    audio = amplitudes_samples * torch.sin(phase)
+
+    # Sum all harmonics into one signal
+    audio = audio.sum(dim=-1)
+    # shape: (batch, n_samples)
+
+    return audio
