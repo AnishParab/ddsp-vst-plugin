@@ -1,0 +1,40 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+env/
+
+# Audio outputs
+*.wav
+*.flac
+*.mp3
+*.ogg
+
+# numpy
+*.npz
+*.npy
+
+# Optional
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Arch linux packages
+*.tar
+*.tar.*
+*.jar
+*.exe
+*.msi
+*.deb
+*.zip
+*.tgz
+*.log
+*.log.*
+*.sig
+pkg/
+src/
